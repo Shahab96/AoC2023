@@ -1,6 +1,4 @@
-const INPUT: &'static str = include_str!("input");
-
-fn process_line(line: &str) -> u32 {
+pub(super) fn process_line(line: &str) -> u32 {
     let chars = line
         .chars()
         .filter(|c| c.is_digit(10))
@@ -11,7 +9,7 @@ fn process_line(line: &str) -> u32 {
 }
 
 pub fn run() -> u32 {
-    INPUT.lines().map(process_line).sum::<u32>()
+    super::INPUT.lines().map(process_line).sum::<u32>()
 }
 
 #[cfg(test)]
@@ -25,7 +23,7 @@ mod tests {
     #[case("pqr3stu8vwx", 38)]
     #[case("a1b2c3d4e5f", 15)]
     #[case("treb7uchet", 77)]
-    fn test(#[case] line: &str, #[case] expected: u32) {
+    fn day1_part1(#[case] line: &str, #[case] expected: u32) {
         assert_eq!(expected, process_line(line));
     }
 }
