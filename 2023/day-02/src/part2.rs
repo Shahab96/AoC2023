@@ -1,4 +1,5 @@
-use super::{process_line, Game, INPUT};
+use super::{process_line, Game};
+use crate::custom_error::AocError;
 
 impl Game {
     fn max(&self) -> (u32, u32, u32) {
@@ -21,12 +22,13 @@ impl Game {
     }
 }
 
-pub fn run() -> u32 {
-    INPUT
+#[tracing::instrument]
+pub fn process(input: &str) -> miette::Result<u32, AocError> {
+    Ok(input
         .lines()
         .map(process_line)
         .map(|game| game.power())
-        .sum()
+        .sum())
 }
 
 #[cfg(test)]
@@ -61,8 +63,13 @@ mod tests {
         (6, 3, 2),
         36
     )]
-    fn day2_part2(#[case] line: &str, #[case] expected: (u32, u32, u32), #[case] power: u32) {
+    fn test_process(
+        #[case] line: &str,
+        #[case] expected: (u32, u32, u32),
+        #[case] power: u32,
+    ) -> miette::Result<()> {
         assert_eq!(process_line(line).max(), expected);
         assert_eq!(process_line(line).power(), power);
+        Ok(())
     }
 }

@@ -1,7 +1,7 @@
+pub mod custom_error;
+
 pub mod part1;
 pub mod part2;
-
-pub const INPUT: &str = include_str!("input.txt");
 
 #[derive(Debug, Default, Eq, PartialEq)]
 struct Round {

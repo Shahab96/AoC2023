@@ -1,4 +1,6 @@
-use super::part1::process_line;
+use crate::custom_error::AocError;
+
+use super::process_line;
 
 const DIGITS: [&'static str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
@@ -24,11 +26,12 @@ fn process_words_in_line(line: &str) -> String {
     buffer
 }
 
-pub fn run() -> u32 {
-    super::INPUT
+#[tracing::instrument]
+pub fn process(input: &str) -> miette::Result<u32, AocError> {
+    Ok(input
         .lines()
         .map(|line| process_line(&process_words_in_line(line)))
-        .sum::<u32>()
+        .sum::<u32>())
 }
 
 #[cfg(test)]
@@ -45,7 +48,7 @@ mod tests {
     #[case("4nineeightseven2", 42)]
     #[case("zoneight234", 14)]
     #[case("7pqrstsixteen", 76)]
-    fn day1_part2(#[case] line: &str, #[case] expected: u32) {
+    fn test_process(#[case] line: &str, #[case] expected: u32) {
         assert_eq!(expected, process_line(&process_words_in_line(line)));
     }
 }

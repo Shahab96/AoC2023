@@ -1,4 +1,5 @@
-use super::{process_line, Game, INPUT};
+use super::{process_line, Game};
+use crate::custom_error::AocError;
 
 fn filter_games(game: &Game) -> bool {
     game.rounds
@@ -6,13 +7,14 @@ fn filter_games(game: &Game) -> bool {
         .all(|round| round.red <= 12 && round.green <= 13 && round.blue <= 14)
 }
 
-pub fn run() -> u32 {
-    INPUT
+#[tracing::instrument]
+pub fn process(input: &str) -> miette::Result<u32, AocError> {
+    Ok(input
         .lines()
         .map(process_line)
         .filter(filter_games)
         .map(|game| game.id)
-        .sum::<u32>()
+        .sum::<u32>())
 }
 
 #[cfg(test)]
@@ -36,7 +38,8 @@ mod tests {
         false
     )]
     #[case("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green", true)]
-    fn day2_part1(#[case] line: &str, #[case] expected: bool) {
+    fn test_process(#[case] line: &str, #[case] expected: bool) -> miette::Result<()> {
         assert_eq!(expected, filter_games(&process_line(line)));
+        Ok(())
     }
 }
