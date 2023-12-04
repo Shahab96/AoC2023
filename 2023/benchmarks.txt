@@ -8,3 +8,8 @@ day_02    fastest       │ slowest       │ median        │ mean          �
 ├─ part1  70.43 µs      │ 105.3 µs      │ 72.32 µs      │ 73.27 µs      │ 100     │ 100
 ╰─ part2  76.76 µs      │ 208.2 µs      │ 121.4 µs      │ 125.6 µs      │ 100     │ 100
 
+Timer precision: 20 ns
+day_03    fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ part1  551.6 µs      │ 919.4 µs      │ 605.7 µs      │ 621.8 µs      │ 100     │ 100
+╰─ part2  1.078 ms      │ 1.202 ms      │ 1.108 ms      │ 1.117 ms      │ 100     │ 100
+
