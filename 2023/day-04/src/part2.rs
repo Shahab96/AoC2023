@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use nom::{
     bytes::complete::tag,
     character::complete::{digit1, space0, space1},
