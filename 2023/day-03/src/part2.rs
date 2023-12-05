@@ -102,7 +102,7 @@ pub fn process(input: &str) -> miette::Result<u32, AocError> {
             let number = number.parse::<u32>().unwrap();
 
             adjacent_gears.iter().for_each(|coords| {
-                hash_map.entry(*coords).or_insert(vec![]).push(number);
+                hash_map.entry(*coords).or_default().push(number);
             });
         }
 
@@ -115,9 +115,7 @@ pub fn process(input: &str) -> miette::Result<u32, AocError> {
         v.dedup();
     });
 
-    Ok(hash_map
-        .iter()
-        .map(|(_, v)| v)
+    Ok(hash_map.values()
         .filter(|v| v.len() == 2)
         .map(|v| v.iter().product::<u32>())
         .sum::<u32>())

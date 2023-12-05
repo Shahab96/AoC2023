@@ -2,7 +2,7 @@ use crate::custom_error::AocError;
 
 use super::process_line;
 
-const DIGITS: [&'static str; 9] = [
+const DIGITS: [&str; 9] = [
     "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 

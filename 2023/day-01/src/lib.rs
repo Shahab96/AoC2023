@@ -6,7 +6,7 @@ pub mod part2;
 fn process_line(line: &str) -> u32 {
     let chars = line
         .chars()
-        .filter(|c| c.is_digit(10))
+        .filter(|c| c.is_ascii_digit())
         .map(|c| c.to_digit(10).unwrap())
         .collect::<Vec<_>>();
 
