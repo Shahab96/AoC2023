@@ -45,25 +45,46 @@ pub fn process(input: &str) -> miette::Result<String, AocError> {
     let (input, seeds) = parse_seeds(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let seed_to_soil_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let seed_to_soil_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let soil_to_fertilizer_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let soil_to_fertilizer_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let fertilizer_to_water_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let fertilizer_to_water_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let water_to_light_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let water_to_light_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let light_to_temperature_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let light_to_temperature_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, mapping) = parse_mapping(input).unwrap();
-    let temperature_to_humidity_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let temperature_to_humidity_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
     let (input, _) = parse_heading(input).unwrap();
     let (_, mapping) = parse_mapping(input).unwrap();
-    let humidity_to_location_map = mapping.into_iter().collect::<HashMap<_, _>>();
+    let humidity_to_wind_map = mapping
+        .into_iter()
+        .map(|(dst, src)| (src, dst))
+        .collect::<HashMap<_, _>>();
 
     let mut seed_to_location_map = HashMap::<usize, usize>::new();
 
