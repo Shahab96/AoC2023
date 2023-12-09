@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
 use crate::custom_error::AocError;
-use itertools::Itertools;
 use nom::{
     bytes::complete::{tag, take_until},
     character::complete::{anychar, digit1, line_ending, space1},
@@ -11,29 +8,15 @@ use nom::{
     IResult,
 };
 
-fn parse_range_line<'a>(input: &'a str) -> IResult<&'a str, HashMap<u32, u32>> {
-    let (input, (destination, source, range)) = tuple((
+fn parse_range_line<'a>(input: &'a str) -> IResult<&'a str, (usize, usize, usize)> {
+    tuple((
         map_res(terminated(digit1, space1), |s: &str| s.parse::<usize>()),
         map_res(terminated(digit1, space1), |s: &str| s.parse::<usize>()),
         map_res(digit1, |s: &str| s.parse::<usize>()),
-    ))(input)?;
-
-    let destination = destination..range;
-    let source = source..range;
-
-    let destination = destination.collect_vec();
-    let source = source.collect_vec();
-
-    let map = source
-        .iter()
-        .zip(destination.iter())
-        .map(|(src, dst)| (*src as u32, *dst as u32))
-        .collect::<HashMap<u32, u32>>();
-
-    Ok((input, map))
+    ))(input)
 }
 
-fn parse_mapping(input: &str) -> IResult<&str, Vec<HashMap<u32, u32>>> {
+fn parse_mapping(input: &str) -> IResult<&str, Vec<(usize, usize, usize)>> {
     separated_list1(line_ending, parse_range_line)(input)
 }
 
@@ -54,81 +37,84 @@ fn parse_heading(input: &str) -> IResult<&str, ()> {
 }
 
 #[tracing::instrument]
-pub fn process(input: &str) -> miette::Result<String, AocError> {
+pub fn process(input: &str) -> miette::Result<usize, AocError> {
     let (input, seeds) = parse_seeds(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    // let seed_to_soil_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, soil_seed_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    // let soil_to_fertilizer_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, fertilizer_soil_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    // let fertilizer_to_water_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, water_fertilizer_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    // let water_to_light_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, light_water_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    // let light_to_temperature_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, temperature_light_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
-    let (input, mapping) = parse_mapping(input).unwrap();
-    let temperature_to_humidity_map: HashMap<u32, u32> = mapping
-        .into_iter()
-        .flat_map(|map| map.into_iter())
-        .collect();
-    // let (input, _) = parse_heading(input).unwrap();
-    // let (_, mapping) = parse_mapping(input).unwrap();
-    // let humidity_to_location_map: HashMap<u32, u32> = mapping
-    //     .into_iter()
-    //     .flat_map(|map| map.into_iter())
-    //     .collect();
+    let (input, humidity_temperature_map) = parse_mapping(input).unwrap();
+    let (input, _) = parse_heading(input).unwrap();
+    let (_, location_humidity_map) = parse_mapping(input).unwrap();
 
-    // let mut seed_to_location_map = HashMap::<usize, usize>::new();
-    //
-    // seeds.iter().for_each(|seed| {
-    //     let soil = seed_to_soil_map.get(seed).unwrap();
-    //     let fertilizer = soil_to_fertilizer_map.get(soil).unwrap();
-    //     let water = fertilizer_to_water_map.get(fertilizer).unwrap();
-    //     let light = water_to_light_map.get(water).unwrap();
-    //     let temperature = light_to_temperature_map.get(light).unwrap();
-    //     let humidity = temperature_to_humidity_map.get(temperature).unwrap();
-    //     let location = humidity_to_location_map.get(humidity).unwrap();
-    //
-    //     // seed_to_location_map.insert(*seed, *location);
-    //     println!(
-    //         "seed: {}, location: {}, humidity: {}, temperature: {}, light: {}, water: {}, fertilizer: {}, soil: {}",
-    //         seed, location, humidity, temperature, light, water, fertilizer, soil
-    //     );
-    // });
+    Ok(seeds
+        .iter()
+        .filter_map(|seed| {
+            let soil = soil_seed_map
+                .iter()
+                .find(|(_, s, r)| seed >= s && *seed <= s + r)
+                .map(|(soil, s, _)| {
+                    let difference = seed - s;
+                    soil + difference
+                })?;
 
-    todo!()
-}
+            let fertilizer = fertilizer_soil_map
+                .iter()
+                .find(|(_, s, r)| soil >= *s && soil <= s + r)
+                .map(|(fertilizer, s, _)| {
+                    let difference = soil - s;
+                    fertilizer + difference
+                })?;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+            let water = water_fertilizer_map
+                .iter()
+                .find(|(_, f, r)| fertilizer >= *f && fertilizer <= f + r)
+                .map(|(water, f, _)| {
+                    let difference = fertilizer - f;
+                    water + difference
+                })?;
 
-    #[test]
-    fn test_process() -> miette::Result<()> {
-        todo!("haven't built test yet");
-        let input = "";
-        assert_eq!("", process(input)?);
-        Ok(())
-    }
+            let light = light_water_map
+                .iter()
+                .find(|(_, w, r)| water >= *w && water <= w + r)
+                .map(|(light, w, _)| {
+                    let difference = water - w;
+                    light + difference
+                })?;
+
+            let temperature = temperature_light_map
+                .iter()
+                .find(|(_, l, r)| light >= *l && light <= l + r)
+                .map(|(temperature, l, _)| {
+                    let difference = light - l;
+                    temperature + difference
+                })?;
+
+            let humidity = humidity_temperature_map
+                .iter()
+                .find(|(_, t, r)| temperature >= *t && temperature <= t + r)
+                .map(|(humidity, t, _)| {
+                    let difference = temperature - t;
+                    humidity + difference
+                })?;
+
+            let location = location_humidity_map
+                .iter()
+                .find(|(_, h, r)| humidity >= *h && humidity <= h + r)
+                .map(|(location, h, _)| {
+                    let difference = humidity - h;
+                    location + difference
+                })?;
+
+            Some(location)
+        })
+        .min()
+        .unwrap())
 }
