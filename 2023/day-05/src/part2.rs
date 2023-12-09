@@ -1,4 +1,6 @@
 use crate::custom_error::AocError;
+use indicatif::{ParallelProgressIterator, ProgressBar};
+use itertools::Itertools;
 use nom::{
     bytes::complete::{tag, take_until},
     character::complete::{anychar, digit1, line_ending, space1},
@@ -40,7 +42,16 @@ fn parse_heading(input: &str) -> IResult<&str, ()> {
 #[tracing::instrument]
 pub fn process(input: &str) -> miette::Result<usize, AocError> {
     let (input, seeds) = parse_seeds(input).unwrap();
-    let seeds = seeds.into_iter().step_by(2).collect::<Vec<_>>();
+    let seeds = seeds
+        .par_iter()
+        .progress_with(ProgressBar::new(seeds.len() as u64))
+        .step_by(2)
+        .zip(seeds.par_iter().skip(1).step_by(2))
+        .flat_map(|(start, offset)| {
+            let range = *start..(*start + *offset);
+            range.collect_vec()
+        })
+        .collect::<Vec<_>>();
     let (input, _) = parse_heading(input).unwrap();
     let (input, soil_seed_map) = parse_mapping(input).unwrap();
     let (input, _) = parse_heading(input).unwrap();
@@ -58,6 +69,7 @@ pub fn process(input: &str) -> miette::Result<usize, AocError> {
 
     Ok(seeds
         .par_iter()
+        .progress_with(ProgressBar::new(seeds.len() as u64))
         .filter_map(|seed| {
             let soil = soil_seed_map
                 .iter()
